@@ -1,0 +1,85 @@
+version: "3.8"
+
+services:
+  app:
+    container_name: app
+    restart: on-failure
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      migrate:
+        condition: service_started
+    links:
+      - db
+      - redis
+    networks:
+      - fullstack
+
+  db:
+    restart: always
+    image: postgres:14-alpine
+    container_name: "postgres-docker"
+    ports:
+      - "127.0.0.1:5432:5432"
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready", "-U", "${DB_USER}", "-d", "${DB_NAME}" ]
+      interval: 15s
+      timeout: 20s
+      retries: 5
+      start_period: 5s
+    networks:
+      - fullstack
+
+  migrate:
+    image: migrate/migrate:v4.15.2
+    restart: on-failure
+    env_file:
+      - .env
+    volumes:
+      - ./pkg/database/migration:/migrations
+    entrypoint:
+      [
+          "migrate",
+          "-path",
+          "/migrations",
+          "-database",
+          "postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:/${DB_NAME}?sslmode=disable",
+      ]
+    command: [ "up" ]
+    depends_on:
+      db:
+        condition: service_healthy
+    links:
+      - db
+    networks:
+      - fullstack
+
+  redis:
+    image: redis:latest
+    container_name: "redis-docker"
+    restart: always
+    ports:
+      - "127.0.0.1:6379:6379"
+    environment:
+      - REDIS_PASSWORD=my-password
+      - REDIS_PORT=6379
+    networks:
+      - fullstack
+
+networks:
+  fullstack:
+    driver: bridge
