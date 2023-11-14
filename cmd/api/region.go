@@ -6,6 +6,18 @@ import (
 	"strconv"
 )
 
+// GetRegionTemperatureMin godoc
+// @Summary Retrieves region min temperature
+// @Tags region
+// @Produce json
+// @Param xMin query string false "min X value"
+// @Param xMax query string false "max X value"
+// @Param yMin query string false "min Y value"
+// @Param yMax query string false "max Y value"
+// @Param zMin query string false "min Z value"
+// @Param zMax query string false "max Z value"
+// @Success 200 {object} float64
+// @Router /region/temperature/min [get]
 func (a *API) GetRegionTemperatureMin(c *gin.Context) {
 	xMinString := c.Query("xMin")
 	xMin, err := strconv.ParseFloat(xMinString, 64)
@@ -58,6 +70,18 @@ func (a *API) GetRegionTemperatureMin(c *gin.Context) {
 	c.JSON(http.StatusOK, temperature)
 }
 
+// GetRegionTemperatureMax godoc
+// @Summary Retrieves region max temperature
+// @Tags region
+// @Produce json
+// @Param xMin query string false "min X value"
+// @Param xMax query string false "max X value"
+// @Param yMin query string false "min Y value"
+// @Param yMax query string false "max Y value"
+// @Param zMin query string false "min Z value"
+// @Param zMax query string false "max Z value"
+// @Success 200 {object} float64
+// @Router /region/temperature/max [get]
 func (a *API) GetRegionTemperatureMax(c *gin.Context) {
 	xMinString := c.Query("xMin")
 	xMin, err := strconv.ParseFloat(xMinString, 64)

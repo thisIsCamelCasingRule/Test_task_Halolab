@@ -8,6 +8,11 @@ import (
 	"syscall"
 )
 
+// @title           Underwater sensor data aggregator service
+// @version         1.0
+// @description     A sensor data management service API in Go.
+
+// @host      localhost:8080
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()

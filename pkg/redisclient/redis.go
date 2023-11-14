@@ -15,9 +15,9 @@ func ConnectRedis() (*redis.Client, error) {
 	}
 
 	cli := redis.NewClient(&redis.Options{
-		Addr:	  fmt.Sprintf("%s:%s", os.Getenv("REDIS_HOST"), os.Getenv("REDIS_PORT")), // todo: move to env vars
-		Password: os.Getenv("REDIS_PASSWORD"), // no password set
-		DB:		 db ,  // use default DB
+		Addr:     fmt.Sprintf("%s:%s", os.Getenv("REDIS_HOST"), os.Getenv("REDIS_PORT")), // todo: move to env vars
+		Password: os.Getenv("REDIS_PASSWORD"),                                            // no password set
+		DB:       db,                                                                     // use default DB
 	})
 
 	_, err = cli.Ping(context.Background()).Result()

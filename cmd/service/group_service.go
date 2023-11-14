@@ -6,10 +6,20 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"strconv"
 	"time"
 )
 
 func (s *Service) GroupAverageTemperature(groupName string) (float64, error) {
+	temperature, err := s.GetCachedAverageTemperature(groupName)
+	if err != nil {
+		return 0, err
+	}
+
+	if temperature != 0 {
+		return temperature, nil
+	}
+
 	dataList, err := s.GetSensorGroupData(groupName)
 	if err != nil {
 		return 0, err
@@ -31,6 +41,15 @@ func (s *Service) GroupAverageTemperature(groupName string) (float64, error) {
 }
 
 func (s *Service) GroupAverageTransparency(groupName string) (int, error) {
+	transparency, err := s.GetCachedAverageTransparency(groupName)
+	if err != nil {
+		return 0, err
+	}
+
+	if transparency != 0 {
+		return transparency, nil
+	}
+
 	dataList, err := s.GetSensorGroupData(groupName)
 	if err != nil {
 		return 0, err
@@ -102,12 +121,12 @@ func (s *Service) GetRegionMinTemperature(xMin, xMax, yMin, yMax, zMin, zMax flo
 
 	var dataList []schema.SensorDataSchema
 	for _, id := range sensorDataIDList {
-		sensorDataList, err := s.DB.SensorDataRepository.GetAllSensorData(id)
+		sensorData, err := s.DB.SensorDataRepository.GetSensorData(id)
 		if err != nil {
 			return 0, err
 		}
 
-		dataList = append(dataList, sensorDataList...)
+		dataList = append(dataList, sensorData)
 	}
 
 	if len(dataList) == 0 {
@@ -146,12 +165,12 @@ func (s *Service) GetRegionMaxTemperature(xMin, xMax, yMin, yMax, zMin, zMax flo
 
 	var dataList []schema.SensorDataSchema
 	for _, id := range sensorDataIDList {
-		sensorDataList, err := s.DB.SensorDataRepository.GetAllSensorData(id)
+		sensorDataList, err := s.DB.SensorDataRepository.GetSensorData(id)
 		if err != nil {
 			return 0, err
 		}
 
-		dataList = append(dataList, sensorDataList...)
+		dataList = append(dataList, sensorDataList)
 	}
 
 	if len(dataList) == 0 {
@@ -228,12 +247,12 @@ func (s *Service) GetSensorGroupData(groupName string) ([]schema.SensorDataSchem
 
 	var dataList []schema.SensorDataSchema
 	for _, id := range idList {
-		sensorDataList, err := s.DB.SensorDataRepository.GetAllSensorData(id)
+		sensorData, err := s.DB.SensorDataRepository.GetSensorData(id)
 		if err != nil {
 			return nil, err
 		}
 
-		dataList = append(dataList, sensorDataList...)
+		dataList = append(dataList, sensorData)
 	}
 
 	return dataList, nil
@@ -270,7 +289,7 @@ func (s *Service) SortSensorDataByTime(dataList []schema.SensorDataSchema, fromD
 
 func (s *Service) CacheAverageTemperature(temperature float64, groupName string) error {
 	key := fmt.Sprintf("%s_%s", "temperature", groupName)
-	err := s.Redis.Set(context.Background(), key, temperature, time.Second * 10).Err()
+	err := s.Redis.Set(context.Background(), key, temperature, time.Second*10).Err()
 	if err != nil {
 		return err
 	}
@@ -280,7 +299,7 @@ func (s *Service) CacheAverageTemperature(temperature float64, groupName string)
 
 func (s *Service) CacheAverageTransparency(temperature int, groupName string) error {
 	key := fmt.Sprintf("%s_%s", "transparency", groupName)
-	err := s.Redis.Set(context.Background(), key, temperature, time.Second * 10).Err()
+	err := s.Redis.Set(context.Background(), key, temperature, time.Second*10).Err()
 	if err != nil {
 		return err
 	}
@@ -288,3 +307,40 @@ func (s *Service) CacheAverageTransparency(temperature int, groupName string) er
 	return nil
 }
 
+func (s *Service) GetCachedAverageTemperature(groupName string) (float64, error) {
+	key := fmt.Sprintf("%s_%s", "temperature", groupName)
+	result, err := s.Redis.Get(context.Background(), key).Result()
+	if err != nil {
+		return 0, err
+	}
+
+	if result == "" {
+		return 0, nil
+	}
+
+	temperature, err := strconv.ParseFloat(result, 64)
+	if err != nil {
+		return 0, err
+	}
+
+	return temperature, nil
+}
+
+func (s *Service) GetCachedAverageTransparency(groupName string) (int, error) {
+	key := fmt.Sprintf("%s_%s", "temperature", groupName)
+	result, err := s.Redis.Get(context.Background(), key).Result()
+	if err != nil {
+		return 0, err
+	}
+
+	if result == "" {
+		return 0, nil
+	}
+
+	transparency, err := strconv.Atoi(result)
+	if err != nil {
+		return 0, err
+	}
+
+	return transparency, nil
+}

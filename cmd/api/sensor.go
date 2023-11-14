@@ -9,6 +9,15 @@ import (
 	"time"
 )
 
+// GetSensorAverageTemperature godoc
+// @Summary Retrieves sensor average temperature
+// @Tags sensor
+// @Produce json
+// @Param codeName path string false "sensor code in format (group id)"
+// @Param from query string false "from datetime"
+// @Param till query string false "till datetime"
+// @Success 200 {object} float64
+// @Router /sensor/{codeName}/temperature/average [get]
 func (a *API) GetSensorAverageTemperature(c *gin.Context) {
 	codeName := c.Param("codeName")
 	codeList := strings.Fields(codeName)
