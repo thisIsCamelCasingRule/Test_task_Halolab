@@ -51,9 +51,9 @@ func init() {
 
 type DataGen struct {
 	WaitGroup *sync.WaitGroup
-	Groups []models.SensorGroup
-	Ctx    context.Context
-	Pool   chan models.SensorData
+	Groups    []models.SensorGroup
+	Ctx       context.Context
+	Pool      chan models.SensorData
 }
 
 func NewDataGen(ctx context.Context) DataGen {

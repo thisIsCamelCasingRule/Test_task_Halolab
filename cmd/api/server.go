@@ -3,18 +3,21 @@ package api
 import (
 	"Test_task_Halolab/cmd/datagen"
 	"Test_task_Halolab/cmd/service"
+	_ "Test_task_Halolab/docs"
 	"Test_task_Halolab/pkg/database"
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
+	"github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
 	"net/http"
 	"runtime"
 	"time"
 )
 
 type Server struct {
-	Api *API
+	Api   *API
 	Redis *redis.Client
 }
 
@@ -68,7 +71,7 @@ func (s *Server) StartServer(ctx context.Context) error {
 
 	// Start http server
 	srv := http.Server{
-		Addr: ":8080",
+		Addr:    ":8080",
 		Handler: s.RegisterRoutes(),
 	}
 
@@ -120,6 +123,8 @@ func (s *Server) RegisterRoutes() *gin.Engine {
 		c.JSON(http.StatusOK, "pong")
 	})
 
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.URL("http://localhost:8080/swagger/doc.json")))
+
 	groupRoutes := router.Group("/group/:groupName")
 	{
 		groupRoutes.GET("/temperature/average", s.Api.GetGroupAverageTemperature)
@@ -141,5 +146,3 @@ func (s *Server) RegisterRoutes() *gin.Engine {
 
 	return router
 }
-
-

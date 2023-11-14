@@ -7,7 +7,7 @@ import (
 )
 
 type Service struct {
-	DB *database.Database
+	DB    *database.Database
 	Redis *redis.Client
 }
 

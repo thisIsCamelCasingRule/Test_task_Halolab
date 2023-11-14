@@ -1,0 +1,206 @@
+definitions:
+  models.FishMeasurement:
+    properties:
+      count:
+        type: integer
+      specie:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: A sensor data management service API in Go.
+  title: Underwater sensor data aggregator service
+  version: "1.0"
+paths:
+  /group/{groupName}/species:
+    get:
+      parameters:
+      - description: Group name
+        in: path
+        name: groupName
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.FishMeasurement'
+            type: array
+      summary: Retrieves group's fish species list with amount from last record of
+        each sensor
+      tags:
+      - group
+  /group/{groupName}/species/top/{N}:
+    get:
+      parameters:
+      - description: Group name
+        in: path
+        name: groupName
+        required: true
+        type: string
+      - description: "N"
+        in: path
+        name: "N"
+        required: true
+        type: integer
+      - description: from datetime
+        in: query
+        name: from
+        type: string
+      - description: till datetime
+        in: query
+        name: till
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.FishMeasurement'
+            type: array
+      summary: Retrieves group's list with amount of top N fish species detected from
+        last record of each sensor
+      tags:
+      - group
+  /group/{groupName}/temperature/average:
+    get:
+      parameters:
+      - description: Group name
+        in: path
+        name: groupName
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: number
+      summary: Retrieves group average temperature from last record of each sensor
+      tags:
+      - group
+  /group/{groupName}/transparency/average:
+    get:
+      parameters:
+      - description: Group name
+        in: path
+        name: groupName
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+      summary: Retrieves group average transparency from last record of each sensor
+      tags:
+      - group
+  /region/temperature/max:
+    get:
+      parameters:
+      - description: min X value
+        in: query
+        name: xMin
+        type: string
+      - description: max X value
+        in: query
+        name: xMax
+        type: string
+      - description: min Y value
+        in: query
+        name: yMin
+        type: string
+      - description: max Y value
+        in: query
+        name: yMax
+        type: string
+      - description: min Z value
+        in: query
+        name: zMin
+        type: string
+      - description: max Z value
+        in: query
+        name: zMax
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: number
+      summary: Retrieves region max temperature
+      tags:
+      - region
+  /region/temperature/min:
+    get:
+      parameters:
+      - description: min X value
+        in: query
+        name: xMin
+        type: string
+      - description: max X value
+        in: query
+        name: xMax
+        type: string
+      - description: min Y value
+        in: query
+        name: yMin
+        type: string
+      - description: max Y value
+        in: query
+        name: yMax
+        type: string
+      - description: min Z value
+        in: query
+        name: zMin
+        type: string
+      - description: max Z value
+        in: query
+        name: zMax
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: number
+      summary: Retrieves region min temperature
+      tags:
+      - region
+  /sensor/{codeName}/temperature/average:
+    get:
+      parameters:
+      - description: sensor code in format (group id)
+        in: path
+        name: codeName
+        type: string
+      - description: from datetime
+        in: query
+        name: from
+        type: string
+      - description: till datetime
+        in: query
+        name: till
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: number
+      summary: Retrieves sensor average temperature
+      tags:
+      - sensor
+swagger: "2.0"
